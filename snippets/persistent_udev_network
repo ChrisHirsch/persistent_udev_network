@@ -1,0 +1,14 @@
+## Removes any existing persistent net rules
+rm -f /etc/udev/rules.d/70-persistent-net.rules
+
+## Disable any further magic and keep our 70-persistent-net.rules 
+## http://www.freedesktop.org/wiki/Software/systemd/PredictableNetworkInterfaceNames/
+ln -s /dev/null /etc/udev/rules.d/80-net-setup-link.rules
+
+## Go through each of our interfaces that have a MAC (ie real hardware) and then
+## assign them the correct name for their MAC from existing cobbler info
+#for $iname in $interfaces.keys()
+        #if $interfaces[$iname]["mac_address"] != ""
+echo 'SUBSYSTEM=="net", ACTION=="add", DRIVERS=="?*", ATTR{address}=="$interfaces[$iname]["mac_address"]", ATTR{type}=="1", KERNEL=="eth*", NAME="$iname"' >> /etc/udev/rules.d/70-persistent-net.rules
+        #end if
+#end for
